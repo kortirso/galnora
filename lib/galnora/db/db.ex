@@ -4,7 +4,7 @@ defmodule Galnora.DB do
   # Memento table definition
   defmodule Job do
     use Memento.Table,
-      attributes: [:id, :type, :from, :to, :status, :keys],
+      attributes: [:id, :uid, :type, :from, :to, :status, :keys],
       index: [:status],
       type: :ordered_set,
       autoincrement: true

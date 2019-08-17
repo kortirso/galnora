@@ -3,7 +3,7 @@ defmodule GalnoraTest do
   alias Galnora.{Server, DB.Job}
 
   test "add/read/get messages" do
-    assert :ok == Server.add_job([], %{type: :systran, from: "en", to: "ru", keys: %{}})
+    assert :ok == Server.add_job([], %{type: :systran, uid: 1, from: "en", to: "ru", keys: %{}})
 
     # and read them
     jobs = Server.list_jobs
@@ -13,6 +13,6 @@ defmodule GalnoraTest do
     # and get first message
     job = Server.take_job
 
-    assert %Job{type: :systran, status: :active} = job
+    assert %Job{type: :systran, uid: 1, status: :active} = job
   end
 end

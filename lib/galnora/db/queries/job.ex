@@ -16,9 +16,9 @@ defmodule Galnora.DB.Queries.Job do
   @doc """
   Create new job
   """
-  def create(%{type: type, from: from, to: to, keys: keys}) do
+  def create(%{uid: uid, type: type, from: from, to: to, keys: keys}) do
     Memento.transaction! fn ->
-      Query.write(%Job{status: :active, type: type, from: from, to: to, keys: keys})
+      Query.write(%Job{status: :active, uid: uid, type: type, from: from, to: to, keys: keys})
     end
   end
 
