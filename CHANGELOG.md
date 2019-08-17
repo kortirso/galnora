@@ -7,3 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## Unreleased
 ### Added
 - CHANGELOG
+- Galnora.Supervisor
+- Galnora.Server
+- Mnesia database with Job and Sentence tables

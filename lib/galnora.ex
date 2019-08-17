@@ -1,5 +1,12 @@
 defmodule Galnora do
-  @moduledoc """
-  Documentation for Galnora.
+  @moduledoc false
+
+  use Application
+
+  @doc """
+  Starts the Galnora Application (and its Supervision Tree)
   """
+  def start(_type, _args) do
+    Galnora.Supervisor.start
+  end
 end

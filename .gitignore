@@ -23,3 +23,5 @@ erl_crash.dump
 galnora-*.tar
 
 .DS_Store
+.mnesia
+Mnesia.nonode@nohost

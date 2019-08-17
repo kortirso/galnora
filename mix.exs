@@ -21,13 +21,15 @@ defmodule Galnora.MixProject do
 
   def application do
     [
+      mod: {Galnora, []},
       extra_applications: [:logger]
     ]
   end
 
   defp deps do
     [
-      {:ex_doc, "~> 0.19", only: :dev}
+      {:ex_doc, "~> 0.19", only: :dev},
+      {:memento, "~> 0.3.1"}
     ]
   end
 
