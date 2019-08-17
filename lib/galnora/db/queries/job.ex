@@ -5,21 +5,27 @@ defmodule Galnora.DB.Queries.Job do
   alias Memento.Query
 
   @doc """
-  Read all jobs
+  Get job by uid
   """
-  def read_all do
-    Memento.transaction! fn ->
-      Query.all(Job)
-    end
+  def get_job_by_uid(uid) do
+    run_select_query(
+      {:==, :uid, uid}
+    )
+    |> Enum.at(0)
   end
 
   @doc """
   Create new job
   """
   def create(%{uid: uid, type: type, from: from, to: to, keys: keys}) do
-    Memento.transaction! fn ->
-      Query.write(%Job{status: :active, uid: uid, type: type, from: from, to: to, keys: keys})
-    end
+    case get_job_by_uid(uid) do
+      nil ->
+        Memento.transaction! fn ->
+          Query.write(%Job{status: :active, uid: uid, type: type, from: from, to: to, keys: keys})
+        end
+      _ ->
+        {:error}
+    end    
   end
 
   @doc """
@@ -28,6 +34,15 @@ defmodule Galnora.DB.Queries.Job do
   def update(%Job{} = job) do
     Memento.transaction! fn ->
       Query.write(job)
+    end
+  end
+
+  @doc """
+  Delete job
+  """
+  def delete(%Job{} = job) do
+    Memento.transaction! fn ->
+      Query.delete(Job, job.id)
     end
   end
 

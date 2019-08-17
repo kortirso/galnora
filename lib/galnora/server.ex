@@ -3,58 +3,95 @@ defmodule Galnora.Server do
 
   use GenServer
   alias Galnora.DB.Queries.{Job, Sentence}
+  alias Galnora.JobServer
 
   # GenServer API
 
   @doc """
-  Init server
+  Inits server
   """
   def init(_) do
     IO.puts "Galnora server is running"
-    jobs = Job.active_jobs
 
-    {:ok, %{jobs: jobs}}
+    pool = Job.active_jobs() |> Enum.map(fn job -> start_job_server(job) end)
+
+    {:ok, %{pool: pool}}
   end
-
-  @doc """
-  Take first job from state
-  """
-  def handle_call(:take_job, _, state) do
-    {job, jobs} = do_take_job(state.jobs)
-
-    {:reply, job, %{jobs: jobs}}
-  end
-
-  @doc """
-  Return list of jobs in the state
-  """
-  def handle_call(:list_jobs, _, state), do: {:reply, state.jobs, state}
-
-  defp do_take_job([job | jobs]), do: {job, jobs}
-  defp do_take_job([]), do: {nil, []}
 
   @doc """
   Add job to state
   """
   def handle_cast({:add_job, sentences, value}, state) do
-    job = Job.create(value)
-    sentences
-    |> Enum.each(fn sentence ->
-      Sentence.create(sentence, job.id)
-    end)
-
-    {:noreply, %{jobs: place_value_to_end(job, state.jobs)}}
+    case Job.create(value) do
+      {:error} ->
+        {:noreply, state}
+      job ->
+        sentences |> Enum.each(fn sentence -> Sentence.create(sentence, job.id) end)
+        {:noreply, %{pool: job |> start_job_server() |> place_value_to_pool(state.pool)}}
+    end
   end
 
-  defp place_value_to_end(addition, jobs) do
-    [addition | Enum.reverse(jobs)] |> Enum.reverse()
+  @doc """
+  Deletes job by uid
+  """
+  def handle_cast({:delete_job, uid}, state) do
+    case Job.get_job_by_uid(uid) do
+      nil ->
+        nil
+      job ->
+        Job.delete(job)
+    end
+
+    {:noreply, state}
+  end
+
+  @doc """
+  Returns job by uid
+  """
+  def handle_call({:get_job, uid}, _, state), do: {:reply, Job.get_job_by_uid(uid), state}
+
+  @doc """
+  Receives sending result with error
+  """
+  def handle_info({:send_job_result, {:error, job}}, state) do
+    job |> Map.merge(%{status: :failed}) |> Job.update()
+
+    {:noreply, state}
+  end
+
+  @doc """
+  Receives sending result with success
+  """
+  def handle_info({:send_job_result, {:ok, job}}, state) do
+    job |> Map.merge(%{status: :completed}) |> Job.update()
+
+    {:noreply, state}
   end
 
   @doc """
   Handle terminating
   """
-  def terminate do
+  def terminate(_, state) do
     IO.puts "Galnora server is shutting down"
+    cleanup(state)
+  end
+
+  # private functions
+  defp start_job_server(job) do
+    job_server_pid = JobServer.start
+    caller = self()
+    send(job_server_pid, {:send_job, caller, job})
+
+    job_server_pid
+  end
+
+  defp place_value_to_pool(addition, pool) do
+    [addition | pool]
+  end
+
+  defp cleanup(%{pool: pool}) do
+    pool |> Enum.each(fn server_pid -> Process.exit(server_pid, :terminating) end)
+    IO.puts "All job servers are closed"
   end
 
   # Client API
@@ -65,17 +102,17 @@ defmodule Galnora.Server do
   def start_link(state \\ []), do: GenServer.start_link(__MODULE__, state, name: __MODULE__)
 
   @doc """
-  Render list jobs
-  """
-  def list_jobs, do: GenServer.call(__MODULE__, :list_jobs)
-
-  @doc """
   Add job to the state
   """
-  def add_job(sentences, value), do: GenServer.cast(__MODULE__, {:add_job, sentences, value})
+  def add_job(sentences, value) when is_list(sentences) and is_map(value), do: GenServer.cast(__MODULE__, {:add_job, sentences, value})
 
   @doc """
-  Take first job from the state
+  Render job by uid
   """
-  def take_job, do: GenServer.call(__MODULE__, :take_job)
+  def get_job(uid) when is_integer(uid), do: GenServer.call(__MODULE__, {:get_job, uid})
+
+  @doc """
+  Delete job by uid
+  """
+  def delete_job(uid) when is_integer(uid), do: GenServer.cast(__MODULE__, {:delete_job, uid})
 end
