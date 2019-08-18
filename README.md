@@ -55,9 +55,9 @@ Galnora.Server.add_job(sentences, job_attrs)
         input - text for translation, string
     job_attrs - attributes for job as map
         uid - identificator, string
-
-        from - source language, ISO 639-1 format (like "en")
-        to - target language, ISO 639-1 format (like "ru")
+        type - type of translating service, atom, available [:systran]
+        from - source language, ISO 639-1 format (like "en"), string
+        to - target language, ISO 639-1 format (like "ru"), string
         keys - map for keys, for example, for Systran - %{key: "API_KEY"}
 
 
