@@ -11,7 +11,7 @@ by adding `galnora` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:galnora, "~> 0.1.0"}
+    {:galnora, "~> 0.1.1"}
   ]
 end
 
@@ -27,7 +27,7 @@ end
 To persist messages across application restarts, specify the DB path in your `config.exs`:
 
 ```elixir
-config :mnesia, dir: 'mnesia/#{Mix.env}/#{node()}' # Notice the single quotes
+config :mnesia, dir: '.mnesia/#{Mix.env}/#{node()}' # Notice the single quotes
 ```
 
 And run the following mix task:

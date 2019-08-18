@@ -53,7 +53,11 @@ defmodule Galnora.Server do
   @doc """
   Returns job by uid
   """
-  def handle_call({:get_job_with_sentences, uid}, _, state), do: {:reply, Sentence.read_sentences(uid), state}
+  def handle_call({:get_job_with_sentences, uid}, _, state) do
+    result = uid |> Sentence.read_sentences() |> Enum.map(fn sentence -> {sentence.uid, sentence.input, sentence.output} end)
+
+    {:reply, result, state}
+  end
 
   @doc """
   Receives translation result
