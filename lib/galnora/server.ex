@@ -53,19 +53,21 @@ defmodule Galnora.Server do
   @doc """
   Receives sending result with error
   """
-  def handle_info({:send_job_result, {:error, job}}, state) do
+  def handle_info({:send_job_result, {:error, job}, job_server_pid}, state) do
     job |> Map.merge(%{status: :failed}) |> Job.update()
+    stop_server(job_server_pid)
 
-    {:noreply, state}
+    {:noreply, %{pool: state.pool |> List.delete(job_server_pid)}}
   end
 
   @doc """
   Receives sending result with success
   """
-  def handle_info({:send_job_result, {:ok, job}}, state) do
+  def handle_info({:send_job_result, {:ok, job}, job_server_pid}, state) do
     job |> Map.merge(%{status: :completed}) |> Job.update()
+    stop_server(job_server_pid)
 
-    {:noreply, state}
+    {:noreply, %{pool: state.pool |> List.delete(job_server_pid)}}
   end
 
   @doc """
@@ -85,14 +87,14 @@ defmodule Galnora.Server do
     job_server_pid
   end
 
-  defp place_value_to_pool(addition, pool) do
-    [addition | pool]
-  end
+  defp place_value_to_pool(addition, pool), do: [addition | pool]
 
   defp cleanup(%{pool: pool}) do
-    pool |> Enum.each(fn server_pid -> Process.exit(server_pid, :terminating) end)
+    pool |> Enum.each(fn server_pid -> stop_server(server_pid)end)
     IO.puts "All job servers are closed"
   end
+
+  defp stop_server(server_pid), do: Process.exit(server_pid, :terminating)
 
   # Client API
 

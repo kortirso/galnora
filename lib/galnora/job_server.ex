@@ -11,7 +11,8 @@ defmodule Galnora.JobServer do
   defp loop do
     receive do
       {:send_job, caller, job} ->
-        send(caller, {:send_job_result, handle_job(job)})
+        job_server_pid = self()
+        send(caller, {:send_job_result, handle_job(job), job_server_pid})
     end
     loop()
   end
