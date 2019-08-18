@@ -5,6 +5,15 @@ defmodule Galnora.DB.Queries.Job do
   alias Memento.Query
 
   @doc """
+  Get all jobs
+  """
+  def get_jobs do
+    Memento.transaction! fn ->
+      Query.all(Job)
+    end
+  end
+
+  @doc """
   Get job by uid
   """
   def get_job_by_uid(uid) do

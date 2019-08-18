@@ -29,7 +29,9 @@ defmodule Galnora.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.19", only: :dev},
-      {:memento, "~> 0.3.1"}
+      {:memento, "~> 0.3.1"},
+      # translation packages
+      {:systran, "~> 0.1.0"}
     ]
   end
 

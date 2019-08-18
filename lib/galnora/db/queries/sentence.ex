@@ -43,6 +43,15 @@ defmodule Galnora.DB.Queries.Sentence do
     end
   end
 
+  @doc """
+  Delete sentence
+  """
+  def delete(%Sentence{} = sentence) do
+    Memento.transaction! fn ->
+      Query.delete(Sentence, sentence.id)
+    end
+  end
+
   defp run_select_query(pattern) do
     Memento.transaction! fn ->
       Query.select(Sentence, pattern)

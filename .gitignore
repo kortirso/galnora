@@ -24,4 +24,4 @@ galnora-*.tar
 
 .DS_Store
 .mnesia
-Mnesia.nonode@nohost
+/config/config.exs

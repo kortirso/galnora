@@ -26,6 +26,9 @@ defmodule Galnora.Server do
       {:error} ->
         {:noreply, state}
       job ->
+        IO.inspect job
+        IO.inspect "_----_"
+        IO.inspect sentences
         sentences |> Enum.each(fn sentence -> Sentence.create(sentence, job.id) end)
         {:noreply, %{pool: job |> start_job_server() |> place_value_to_pool(state.pool)}}
     end
@@ -51,20 +54,13 @@ defmodule Galnora.Server do
   def handle_call({:get_job, uid}, _, state), do: {:reply, Job.get_job_by_uid(uid), state}
 
   @doc """
-  Receives sending result with error
+  Receives translation result
   """
-  def handle_info({:send_job_result, {:error, job}, job_server_pid}, state) do
-    job |> Map.merge(%{status: :failed}) |> Job.update()
-    stop_server(job_server_pid)
+  def handle_info({:send_job_result, {{result, job}, job_server_pid}}, state) do
+    IO.puts "Galnora server is receiving result for job #{job.id}"
+    status = if result == :ok, do: :completed, else: :failed
 
-    {:noreply, %{pool: state.pool |> List.delete(job_server_pid)}}
-  end
-
-  @doc """
-  Receives sending result with success
-  """
-  def handle_info({:send_job_result, {:ok, job}, job_server_pid}, state) do
-    job |> Map.merge(%{status: :completed}) |> Job.update()
+    job |> Map.merge(%{status: status}) |> Job.update()
     stop_server(job_server_pid)
 
     {:noreply, %{pool: state.pool |> List.delete(job_server_pid)}}
