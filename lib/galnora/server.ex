@@ -32,12 +32,14 @@ defmodule Galnora.Server do
   end
 
   @doc """
-  Deletes job by uid
+  Deletes job by uid with sentences
   """
   def handle_cast({:delete_job, uid}, state) do
     case Job.get_job_by_uid(uid) do
       nil -> nil
-      job -> Job.delete(job)
+      job ->
+        Job.delete(job)
+        job.id |> Sentence.read_sentences() |> Enum.each(fn sentence -> Sentence.delete(sentence) end)
     end
 
     {:noreply, state}
@@ -47,6 +49,11 @@ defmodule Galnora.Server do
   Returns job by uid
   """
   def handle_call({:get_job, uid}, _, state), do: {:reply, Job.get_job_by_uid(uid), state}
+
+  @doc """
+  Returns job by uid
+  """
+  def handle_call({:get_job_with_sentences, uid}, _, state), do: {:reply, Sentence.read_sentences(uid), state}
 
   @doc """
   Receives translation result
@@ -103,6 +110,11 @@ defmodule Galnora.Server do
   Render job by uid
   """
   def get_job(uid) when is_integer(uid), do: GenServer.call(__MODULE__, {:get_job, uid})
+
+  @doc """
+  Render job's sentences by job's uid
+  """
+  def get_job_with_sentences(uid) when is_integer(uid), do: GenServer.call(__MODULE__, {:get_job_with_sentences, uid})
 
   @doc """
   Delete job by uid

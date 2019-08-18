@@ -13,6 +13,10 @@ defmodule GalnoraTest do
 
     assert %Job{type: :systran, uid: 1, status: :completed} = job
 
+    sentences = Server.get_job_with_sentences(1)
+
+    assert length(sentences) == 1
+
     clean_database()
   end
 
