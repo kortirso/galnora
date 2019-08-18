@@ -2,7 +2,7 @@ defmodule Galnora.MixProject do
   use Mix.Project
 
   @description """
-  Translation processing with Elixir
+  GenServer for translating words or phrases in background mode with Elixir
   """
 
   def project do

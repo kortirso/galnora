@@ -10,3 +10,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Galnora.Supervisor
 - Galnora.Server
 - Mnesia database with Job and Sentence tables
+- Systran package
+- Galnora.JobServer with Systran integration
