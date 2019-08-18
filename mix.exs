@@ -8,7 +8,7 @@ defmodule Galnora.MixProject do
   def project do
     [
       app: :galnora,
-      version: "0.1.2",
+      version: "0.1.3",
       elixir: "~> 1.9",
       name: "Galnora",
       description: @description,

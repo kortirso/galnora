@@ -12,10 +12,10 @@ defmodule Galnora.JobServer.Systran do
       iex> Galnora.JobServer.Systran.call(job)
 
   """
-  def call(%Job{id: job_id, from: from, to: to, keys: keys} = job) do
+  def call(%Job{uid: job_uid, from: from, to: to, keys: keys} = job) do
     # define key for translations
     key = if keys[:key] == nil, do: Application.get_env(:systran, :api_key), else: keys[:key]
-    job_id
+    job_uid
     |> Queries.Sentence.read_active_sentences()
     |> Enum.map(fn %Sentence{input: input} = sentence ->
       # translate input text

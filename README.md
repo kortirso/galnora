@@ -11,7 +11,7 @@ by adding `galnora` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:galnora, "~> 0.1.2"}
+    {:galnora, "~> 0.1.3"}
   ]
 end
 
