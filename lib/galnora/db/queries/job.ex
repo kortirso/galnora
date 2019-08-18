@@ -14,6 +14,15 @@ defmodule Galnora.DB.Queries.Job do
   end
 
   @doc """
+  Get list of active jobs
+  """
+  def get_active_jobs do
+    run_select_query(
+      {:==, :status, :active}
+    )
+  end
+
+  @doc """
   Get job by uid
   """
   def get_job_by_uid(uid) do
@@ -53,24 +62,6 @@ defmodule Galnora.DB.Queries.Job do
     Memento.transaction! fn ->
       Query.delete(Job, job.id)
     end
-  end
-
-  @doc """
-  Get list of completed jobs
-  """
-  def completed_jobs do
-    run_select_query(
-      {:==, :status, :completed}
-    )
-  end
-
-  @doc """
-  Get list of active jobs
-  """
-  def active_jobs do
-    run_select_query(
-      {:==, :status, :active}
-    )
   end
 
   defp run_select_query(pattern) do

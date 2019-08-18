@@ -18,10 +18,8 @@ defmodule Galnora.JobServer.Systran do
     job_id
     |> Queries.Sentence.read_active_sentences()
     |> Enum.map(fn %Sentence{input: input} = sentence ->
-      IO.inspect sentence
       # translate input text
       output = translate(key, input, from, to, 0)
-      IO.inspect output
       # update sentence
       sentence |> Map.merge(%{output: output}) |> Queries.Sentence.update()
     end)

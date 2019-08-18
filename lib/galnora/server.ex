@@ -13,7 +13,7 @@ defmodule Galnora.Server do
   def init(_) do
     IO.puts "Galnora server is running"
 
-    pool = Job.active_jobs() |> Enum.map(fn job -> start_job_server(job) end)
+    pool = Job.get_active_jobs() |> Enum.map(fn job -> start_job_server(job) end)
 
     {:ok, %{pool: pool}}
   end
@@ -26,9 +26,6 @@ defmodule Galnora.Server do
       {:error} ->
         {:noreply, state}
       job ->
-        IO.inspect job
-        IO.inspect "_----_"
-        IO.inspect sentences
         sentences |> Enum.each(fn sentence -> Sentence.create(sentence, job.id) end)
         {:noreply, %{pool: job |> start_job_server() |> place_value_to_pool(state.pool)}}
     end
@@ -39,10 +36,8 @@ defmodule Galnora.Server do
   """
   def handle_cast({:delete_job, uid}, state) do
     case Job.get_job_by_uid(uid) do
-      nil ->
-        nil
-      job ->
-        Job.delete(job)
+      nil -> nil
+      job -> Job.delete(job)
     end
 
     {:noreply, state}

@@ -13,6 +13,7 @@ defmodule Galnora.JobServer do
   defp loop do
     receive do
       {:send_job, caller, job} ->
+        IO.puts "Job server for job #{job.id} is started"
         job_server_pid = self()
         send(caller, {:send_job_result, {handle_job(job), job_server_pid}})
     end
