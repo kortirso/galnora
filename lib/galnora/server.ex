@@ -13,9 +13,9 @@ defmodule Galnora.Server do
   def init(_) do
     IO.puts "Galnora server is running"
 
-    pool = Job.get_active_jobs() |> Enum.map(fn job -> start_job_server(job) end)
+    # pool = Job.get_active_jobs() |> Enum.map(fn job -> start_job_server(job) end)
 
-    {:ok, %{pool: pool}}
+    {:ok, %{pool: []}}
   end
 
   @doc """
